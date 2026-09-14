@@ -1,0 +1,17 @@
+{
+    "name": "gaming-global",
+    "version": "1.0.0",
+    "description": "Plataforma de streaming Gaming Global Secure Edition",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "axios": "^1.20.0",
+        "cors": "^2.8.6",
+        "dotenv": "^16.6.1",
+        "express": "^4.22.2",
+        "google-auth-library": "^11.0.2",
+        "socket.io": "^4.8.3"
+    }
+}

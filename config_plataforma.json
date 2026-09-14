@@ -1,0 +1,37 @@
+{
+  "tmdb_api_key": "3afb09305f5df52b80137e5ce2455858",
+  "omdb_api_key": "861e019d",
+  "monetag_url": "https://omg10.com/4/11446133",
+  "servers": [
+    {
+      "id": "sv_1",
+      "name": "VidSrc ME (Oficial)",
+      "domain": "vidsrcme.ru"
+    },
+    {
+      "id": "sv_2",
+      "name": "VidSrc 2",
+      "domain": "vidsrc2.ru"
+    },
+    {
+      "id": "sv_3",
+      "name": "VidSrc IR",
+      "domain": "vidsrc.ir"
+    },
+    {
+      "id": "sv_4",
+      "name": "VidSrc SU",
+      "domain": "vidsrcme.su"
+    },
+    {
+      "id": "sv_5",
+      "name": "2Embed CC",
+      "domain": "2embed.cc"
+    },
+    {
+      "id": "sv_6",
+      "name": "2Embed Skin",
+      "domain": "2embed.skin"
+    }
+  ]
+}

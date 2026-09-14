@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gaming Global - Secure Edition</title>
+<!-- Script oficial de Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Socket.io Cliente -->
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root {
+--bg-color: #0f1015;
+--primary-color: #e50914;
+--text-color: #ffffff;
+--gray-color: #94a3b8;
+--panel-bg: #181b22;
+--accent-purple: #a855f7;
+--accent-green: #22c55e;
+}
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+-webkit-user-select: none;
+user-select: none;
+}
+input, textarea, select {
+-webkit-user-select: text;
+user-select: text;
+}
+body {
+background-color: var(--bg-color);
+color: var(--text-color);
+padding-bottom: 50px;
+}
+/* Preloader Profesional con Barra de Progreso (0-100%) */
+#preloader {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: #090a0f;
+z-index: 9999;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#preloader.fade-out {
+opacity: 0;
+visibility: hidden;
+}
+.preloader-logo {
+color: var(--primary-color);
+font-size: 2.4rem;
+font-weight: 800;
+letter-spacing: 2px;
+margin-bottom: 20px;
+text-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
+}
+.preloader-bar-container {
+width: 280px;
+height: 6px;
+background: #1a1d24;
+border-radius: 3px;
+overflow: hidden;
+border: 1px solid #2a2e39;
+}
+.preloader-bar {
+width: 30%;
+height: 100%;
+background: linear-gradient(90deg, var(--primary-color), #ff4d4f);
+border-radius: 3px;
+transition: width 0.4s ease;
+}
+.preloader-text {
+margin-top: 12px;
+font-size: 0.85rem;
+color: var(--gray-color);
+letter-spacing: 1px;
+}
+header {
+padding: 18px 4%;
+background: rgba(15, 16, 21, 0.85);
+backdrop-filter: blur(12px);
+display: flex;
+justify-content: space-between;
+align-items: center;
+position: sticky;
+top: 0;
+z-index: 100;
+gap: 15px;
+flex-wrap: wrap;
+border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.header-left {
+display: flex;
+align-items: center;
+gap: 20px;
+}
+.header-right {
+display: flex;
+align-items: center;
+gap: 15px;
+}
+.menu-toggle-btn {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.1);
+color: white;
+font-size: 1.3rem;
+cursor: pointer;
+width: 40px;
+height: 40px;
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.2s;
+}
+.menu-toggle-btn:hover {
+background: rgba(255, 255, 255, 0.1);
+border-color: var(--primary-color);
+}
+h1 {
+color: var(--primary-color);
+font-size: 1.7rem;
+letter-spacing: 0.5px;
+cursor: pointer;
+font-weight: 800;
+}
+.search-box {
+padding: 10px 16px;
+width: 240px;
+border-radius: 8px;
+border: 1px solid #2a2e39;
+background: #181b22;
+color: white;
+font-size: 0.9rem;
+transition: all 0.2s;
+}
+.search-box:focus {
+outline: none;
+border-color: var(--primary-color);
+box-shadow: 0 0 10px rgba(229, 9, 20, 0.2);
+}
+/* Selector de Idiomas / Banderas */
+.language-dropdown-container {
+position: relative;
+}
+.lang-btn {
+background: #181b22;
+border: 1px solid #2a2e39;
+color: white;
+padding: 8px 12px;
+border-radius: 8px;
+cursor: pointer;
+font-size: 0.9rem;
+display: flex;
+align-items: center;
+gap: 6px;
+transition: all 0.2s;
+}
+.lang-btn:hover {
+border-color: var(--gray-color);
+}
+.lang-menu {
+display: none;
+position: absolute;
+right: 0;
+top: 45px;
+background: #181b22;
+border: 1px solid #2a2e39;
+border-radius: 8px;
+box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+z-index: 200;
+min-width: 160px;
+overflow: hidden;
+}
+.lang-menu.active {
+display: block;
+}
+.lang-option {
+padding: 10px 14px;
+display: flex;
+align-items: center;
+gap: 10px;
+cursor: pointer;
+font-size: 0.85rem;
+color: var(--gray-color);
+transition: all 0.2s;
+}
+.lang-option:hover, .lang-option.active {
+background: #232731;
+color: white;
+}
+#auth-container {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+#user-profile-widget {
+display: none;
+align-items: center;
+gap: 10px;
+background: #181b22;
+padding: 6px 14px;
+border-radius: 20px;
+border: 1px solid #2a2e39;
+cursor: pointer;
+transition: background 0.2s;
+}
+#user-profile-widget:hover {
+background: #232731;
+}
+#user-avatar {
+width: 30px;
+height: 30px;
+border-radius: 50%;
+object-fit: cover;
+}
+#user-name {
+font-size: 0.85rem;
+color: white;
+max-width: 110px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+font-weight: 600;
+}
+.admin-badge {
+background: var(--primary-color);
+color: white;
+font-size: 0.65rem;
+padding: 2px 6px;
+border-radius: 4px;
+font-weight: bold;
+display: none;
+}
+#sidebar {
+position: fixed;
+top: 0;
+left: -320px;
+width: 320px;
+height: 100%;
+background-color: #0d0e12;
+z-index: 1200;
+transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+padding: 25px 20px;
+display: flex;
+flex-direction: column;
+overflow-y: auto;
+border-right: 1px solid rgba(255,255,255,0.05);
+}
+#sidebar.active {
+left: 0;
+}
+.sidebar-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 25px;
+}
+.sidebar-header h3 {
+color: var(--primary-color);
+font-size: 1.3rem;
+font-weight: 800;
+}
+.close-sidebar {
+background: rgba(255,255,255,0.05);
+border: none;
+color: white;
+font-size: 1rem;
+cursor: pointer;
+width: 32px;
+height: 32px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background 0.2s;
+}
+.close-sidebar:hover {
+background: rgba(255,255,255,0.15);
+}
+.sidebar-menu {
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+.sidebar-menu li {
+padding: 12px 16px;
+border-radius: 8px;
+cursor: pointer;
+color: var(--gray-color);
+font-weight: 500;
+font-size: 0.92rem;
+transition: all 0.2s;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.sidebar-menu li:hover {
+background: #181b22;
+color: white;
+transform: translateX(4px);
+}
+/* Panel de Chat en Tiempo Real y Moderación en Sidebar */
+.chat-section-container {
+margin-top: 20px;
+border-top: 1px solid rgba(255,255,255,0.06);
+padding-top: 15px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+flex-grow: 1;
+}
+.chat-title {
+font-size: 0.8rem;
+color: var(--primary-color);
+text-transform: uppercase;
+letter-spacing: 1px;
+font-weight: 700;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+#chat-messages-box {
+background: #12141a;
+border: 1px solid #1f232d;
+border-radius: 8px;
+height: 160px;
+overflow-y: auto;
+padding: 10px;
+display: flex;
+flex-direction: column;
+gap: 6px;
+font-size: 0.8rem;
+}
+.chat-msg {
+background: #181b22;
+padding: 6px 10px;
+border-radius: 6px;
+word-break: break-word;
+border: 1px solid rgba(255,255,255,0.02);
+}
+.chat-msg-user {
+color: var(--primary-color);
+font-weight: 700;
+margin-right: 4px;
+}
+.chat-input-area {
+display: flex;
+gap: 6px;
+}
+.chat-input {
+flex-grow: 1;
+background: #12141a;
+border: 1px solid #1f232d;
+color: white;
+padding: 8px 12px;
+border-radius: 6px;
+font-size: 0.8rem;
+}
+.chat-input:focus {
+outline: none;
+border-color: var(--primary-color);
+}
+.chat-send-btn {
+background: var(--primary-color);
+color: white;
+border: none;
+padding: 8px 14px;
+border-radius: 6px;
+cursor: pointer;
+font-weight: bold;
+font-size: 0.8rem;
+transition: opacity 0.2s;
+}
+.chat-send-btn:hover {
+opacity: 0.9;
+}
+.emoji-reactions-bar {
+display: flex;
+gap: 5px;
+}
+.emoji-btn {
+background: #12141a;
+border: 1px solid #1f232d;
+border-radius: 6px;
+padding: 5px 10px;
+cursor: pointer;
+font-size: 0.9rem;
+transition: background 0.2s;
+}
+.emoji-btn:hover {
+background: #1f232d;
+}
+/* Panel de Admin para Control de Permisos y Configuración en Vivo */
+#admin-panel-box {
+display: none;
+background: #1a1215;
+border: 1px solid rgba(229, 9, 20, 0.3);
+border-radius: 8px;
+padding: 12px;
+margin-top: 15px;
+}
+#admin-panel-box h5 {
+color: var(--primary-color);
+font-size: 0.82rem;
+margin-bottom: 8px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.admin-control-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-size: 0.78rem;
+color: var(--gray-color);
+margin-bottom: 8px;
+}
+.admin-toggle-btn {
+background: #2a2e39;
+color: white;
+border: none;
+padding: 4px 10px;
+border-radius: 4px;
+cursor: pointer;
+font-weight: bold;
+font-size: 0.72rem;
+}
+.admin-toggle-btn.active {
+background: var(--accent-green);
+}
+.creator-section-box {
+margin-top: 15px;
+padding-top: 12px;
+border-top: 1px solid rgba(255,255,255,0.06);
+}
+.creator-section-box h4 {
+font-size: 0.78rem;
+color: var(--gray-color);
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-bottom: 8px;
+}
+.creator-link-btn {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 8px 12px;
+background: #12141a;
+border-radius: 6px;
+color: white;
+text-decoration: none;
+font-size: 0.8rem;
+margin-bottom: 6px;
+border: 1px solid #1f232d;
+transition: all 0.2s;
+}
+.creator-link-btn:hover {
+background: #1f232d;
+border-color: var(--primary-color);
+}
+.sidebar-backdrop {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0,0,0,0.7);
+backdrop-filter: blur(4px);
+z-index: 1150;
+}
+.categories-bar {
+padding: 12px 4%;
+display: flex;
+gap: 10px;
+overflow-x: auto;
+background: rgba(15, 16, 21, 0.5);
+white-space: nowrap;
+margin-bottom: 20px;
+border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.categories-bar::-webkit-scrollbar {
+height: 4px;
+}
+.categories-bar::-webkit-scrollbar-thumb {
+background: #2a2e39;
+border-radius: 2px;
+}
+.category-chip {
+background: #181b22;
+color: var(--gray-color);
+border: 1px solid #2a2e39;
+padding: 8px 16px;
+border-radius: 20px;
+font-size: 0.85rem;
+cursor: pointer;
+transition: all 0.2s;
+font-weight: 500;
+}
+.category-chip:hover, .category-chip.active {
+background: var(--primary-color);
+color: white;
+border-color: var(--primary-color);
+box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+}
+.container {
+padding: 10px 4% 40px 4%;
+}
+.category-row-container {
+margin-bottom: 30px;
+}
+.category-row-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+}
+.category-row-title {
+font-size: 1.25rem;
+color: white;
+font-weight: 700;
+letter-spacing: 0.3px;
+}
+.category-row-more {
+font-size: 0.8rem;
+color: var(--gray-color);
+cursor: pointer;
+background: none;
+border: none;
+font-weight: 700;
+letter-spacing: 0.5px;
+transition: color 0.2s;
+}
+.category-row-more:hover {
+color: white;
+}
+.horizontal-scroll-grid {
+display: flex;
+gap: 16px;
+overflow-x: auto;
+overflow-y: hidden;
+scroll-behavior: smooth;
+padding-bottom: 12px;
+white-space: nowrap;
+}
+.horizontal-scroll-grid::-webkit-scrollbar {
+height: 6px;
+}
+.horizontal-scroll-grid::-webkit-scrollbar-thumb {
+background: #2a2e39;
+border-radius: 3px;
+}
+.horizontal-scroll-grid::-webkit-scrollbar-track {
+background: transparent;
+}
+/* Tarjetas con Efectos Premium Modernos, Barras de Progreso Moradas/Verdes y Lazy Loading */
+.card {
+min-width: 160px;
+max-width: 160px;
+flex-shrink: 0;
+background-color: #181b22;
+border-radius: 8px;
+overflow: hidden;
+cursor: pointer;
+transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+position: relative;
+border: 1px solid rgba(255,255,255,0.03);
+}
+.card:hover {
+transform: translateY(-6px) scale(1.02);
+box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+border-color: rgba(229, 9, 20, 0.3);
+}
+.card img {
+width: 100%;
+height: 235px;
+object-fit: cover;
+pointer-events: none;
+background: #12141a;
+}
+.card-source-chip {
+position: absolute;
+top: 8px;
+left: 8px;
+background: rgba(9, 10, 15, 0.85);
+backdrop-filter: blur(4px);
+color: var(--primary-color);
+font-size: 0.62rem;
+padding: 3px 8px;
+border-radius: 4px;
+font-weight: 700;
+border: 1px solid rgba(229, 9, 20, 0.3);
+}
+.card-title {
+padding: 10px;
+font-size: 0.85rem;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+color: white;
+font-weight: 600;
+}
+/* Barra de progreso morada para películas / continuar viendo */
+.card-progress-bar {
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+height: 4px;
+background: rgba(255,255,255,0.15);
+}
+.card-progress-fill {
+height: 100%;
+background: var(--accent-purple);
+width: 0%;
+transition: width 0.3s;
+}
+.grid-standard {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+gap: 20px;
+}
+.grid-standard .card {
+min-width: unset;
+max-width: unset;
+width: 100%;
+}
+/* Modal de Reproducción Moderno y Contenedor Padre para Pantalla Completa */
+#modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(9, 10, 15, 0.97);
+backdrop-filter: blur(20px);
+z-index: 1000;
+flex-direction: column;
+padding: 25px 4%;
+overflow-y: auto;
+}
+.modal-content-wrapper {
+max-width: 960px;
+margin: 0 auto;
+width: 100%;
+display: flex;
+flex-direction: column;
+gap: 18px;
+}
+.modal-header-top {
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid rgba(255,255,255,0.08);
+padding-bottom: 12px;
+}
+.modal-header-top h2 {
+font-size: 1.4rem;
+color: white;
+margin: 0;
+font-weight: 700;
+}
+.close-btn {
+background: var(--primary-color);
+color: white;
+border: none;
+padding: 8px 16px;
+border-radius: 6px;
+cursor: pointer;
+font-weight: 700;
+font-size: 0.85rem;
+transition: opacity 0.2s;
+}
+.close-btn:hover {
+opacity: 0.9;
+}
+/* Contenedor Padre Totalmente Inmune para Pantalla Completa y Controles Nativos */
+#fullscreen-wrapper {
+position: relative;
+width: 100%;
+background: #000;
+border-radius: 10px;
+overflow: hidden;
+box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+border: 1px solid rgba(255,255,255,0.08);
+}
+.player-container {
+width: 100%;
+aspect-ratio: 16/9;
+background: #000;
+position: relative;
+}
+#click-shield {
+position: absolute;
+top: 0; left: 0; width: 100%; height: 100%;
+z-index: 25;
+cursor: pointer;
+background: rgba(0,0,0,0.01);
+}
+iframe {
+width: 100%;
+height: 100%;
+border: none;
+display: block;
+}
+/* Spinner de carga transitorio al cambiar de servidor */
+#player-spinner {
+position: absolute;
+top: 50%; left: 50%;
+transform: translate(-50%, -50%);
+z-index: 15;
+display: none;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+background: rgba(9, 10, 15, 0.85);
+padding: 20px;
+border-radius: 12px;
+border: 1px solid rgba(255,255,255,0.1);
+}
+.spinner-circle {
+width: 36px;
+height: 36px;
+border: 3px solid rgba(255,255,255,0.1);
+border-top-color: var(--primary-color);
+border-radius: 50%;
+animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+.source-selector-bar {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: #181b22;
+padding: 12px 18px;
+border-radius: 8px;
+border: 1px solid #2a2e39;
+}
+.source-current-label {
+font-size: 0.9rem;
+color: var(--gray-color);
+}
+.source-current-label span {
+color: white;
+font-weight: 700;
+}
+.source-open-modal-btn {
+background: var(--primary-color);
+color: white;
+border: none;
+padding: 8px 16px;
+border-radius: 6px;
+cursor: pointer;
+font-weight: 700;
+font-size: 0.85rem;
+transition: opacity 0.2s;
+}
+.source-open-modal-btn:hover {
+opacity: 0.9;
+}
+#source-picker-modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0,0,0,0.85);
+backdrop-filter: blur(8px);
+z-index: 1500;
+justify-content: center;
+align-items: center;
+padding: 20px;
+}
+.source-picker-box {
+background: #181b22;
+width: 100%;
+max-width: 440px;
+border-radius: 12px;
+border: 1px solid #2a2e39;
+padding: 22px;
+display: flex;
+flex-direction: column;
+gap: 14px;
+box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+}
+.source-picker-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+color: white;
+font-size: 1.1rem;
+font-weight: 700;
+border-bottom: 1px solid #2a2e39;
+padding-bottom: 10px;
+}
+.source-option-item {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 12px 16px;
+background: #12141a;
+border-radius: 8px;
+cursor: pointer;
+border: 1px solid transparent;
+transition: all 0.2s;
+color: white;
+font-size: 0.9rem;
+}
+.source-option-item:hover, .source-option-item.active {
+border-color: var(--primary-color);
+background: #232731;
+}
+.source-option-item input[type="radio"] {
+accent-color: var(--primary-color);
+transform: scale(1.2);
+}
+.controls-row {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+}
+.select-group {
+display: flex;
+gap: 8px;
+}
+select, .action-btn {
+background: #181b22;
+color: white;
+border: 1px solid #2a2e39;
+padding: 9px 14px;
+border-radius: 6px;
+cursor: pointer;
+font-size: 0.85rem;
+font-weight: 500;
+transition: border-color 0.2s;
+}
+select:focus, .action-btn:hover {
+border-color: var(--primary-color);
+}
+.action-btn {
+background: #232731;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+/* Módulo de Feedback y Reporte de Errores con Z-Index Superior y Throttle */
+.feedback-module {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: #181b22;
+padding: 12px 18px;
+border-radius: 8px;
+border: 1px solid #2a2e39;
+position: relative;
+z-index: 30;
+}
+.star-rating {
+display: flex;
+gap: 4px;
+cursor: pointer;
+}
+.star {
+font-size: 1.3rem;
+color: #4a5568;
+transition: color 0.2s;
+}
+.star.active, .star:hover {
+color: #f5c518;
+}
+.report-error-btn {
+background: #991b1b;
+color: white;
+border: none;
+padding: 8px 14px;
+border-radius: 6px;
+cursor: pointer;
+font-weight: 700;
+font-size: 0.8rem;
+transition: background 0.2s;
+}
+.report-error-btn:hover {
+background: #b91c1c;
+}
+.report-error-btn:disabled {
+background: #334155;
+cursor: not-allowed;
+}
+.movie-info {
+color: var(--gray-color);
+}
+.movie-info h3 {
+color: white;
+margin-bottom: 6px;
+font-size: 1.25rem;
+font-weight: 700;
+}
+.movie-info p {
+font-size: 0.9rem;
+line-height: 1.5;
+}
+.cast-section h4 {
+color: white;
+margin-bottom: 12px;
+font-size: 1.05rem;
+font-weight: 700;
+}
+.cast-grid {
+display: flex;
+gap: 12px;
+overflow-x: auto;
+padding-bottom: 6px;
+}
+.cast-grid::-webkit-scrollbar {
+height: 4px;
+}
+.cast-grid::-webkit-scrollbar-thumb {
+background: #2a2e39;
+border-radius: 2px;
+}
+.cast-card {
+min-width: 100px;
+max-width: 100px;
+background: #181b22;
+border-radius: 8px;
+text-align: center;
+cursor: pointer;
+flex-shrink: 0;
+overflow: hidden;
+border: 1px solid rgba(255,255,255,0.03);
+transition: transform 0.2s;
+}
+.cast-card:hover {
+transform: scale(1.05);
+}
+.cast-card img {
+width: 100%;
+height: 125px;
+object-fit: cover;
+pointer-events: none;
+}
+.cast-name {
+font-size: 0.75rem;
+padding: 8px 6px;
+color: white;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+font-weight: 600;
+}
+#actor-profile-view {
+display: none;
+max-width: 960px;
+margin: 20px auto;
+background: #181b22;
+padding: 35px;
+border-radius: 12px;
+border: 1px solid #2a2e39;
+}
+.actor-header {
+display: flex;
+gap: 30px;
+flex-wrap: wrap;
+align-items: flex-start;
+}
+.actor-avatar {
+width: 190px;
+height: 265px;
+object-fit: cover;
+border-radius: 8px;
+pointer-events: none;
+box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.actor-details h2 {
+color: white;
+font-size: 1.9rem;
+margin-bottom: 12px;
+font-weight: 800;
+}
+.actor-details p {
+color: var(--gray-color);
+margin-bottom: 10px;
+font-size: 0.95rem;
+}
+.actor-bio {
+margin-top: 15px;
+max-height: 150px;
+overflow-y: auto;
+font-size: 0.88rem;
+line-height: 1.6;
+color: #cbd5e1;
+}
+.back-nav-btn {
+background: #232731;
+color: white;
+border: 1px solid #2a2e39;
+padding: 9px 16px;
+border-radius: 6px;
+cursor: pointer;
+font-size: 0.9rem;
+font-weight: 600;
+transition: all 0.2s;
+}
+.back-nav-btn:hover {
+border-color: var(--primary-color);
+}
+</style>
+</head>
+<body>
+
+<!-- Pantalla de Carga Profesional con Barra de Progreso (0-100%) -->
+<div id="preloader">
+<div class="preloader-logo">Gaming Global</div>
+<div class="preloader-bar-container">
+<div id="preloader-bar" class="preloader-bar"></div>
+</div>
+<div id="preloader-text" class="preloader-text">Conectando con servidores seguros... 30%</div>
+</div>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+<div id="sidebar">
+<div class="sidebar-header">
+<h3 data-i18n="sidebar_title">Gaming Global</h3>
+<button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+</div>
+<ul class="sidebar-menu">
+<li onclick="toggleSidebar(); goHome()"><span style="font-size: 1.1rem;">🏠</span> <span data-i18n="menu_home">Inicio</span></li>
+<li onclick="toggleSidebar(); filterByType('movie')"><span style="font-size: 1.1rem;">🎬</span> <span data-i18n="menu_movies">Películas Populares</span></li>
+<li onclick="toggleSidebar(); filterByType('tv')"><span style="font-size: 1.1rem;">📺</span> <span data-i18n="menu_series">Series de TV</span></li>
+<li onclick="toggleSidebar(); filterByGenre(16, 'Animación / Anime')"><span style="font-size: 1.1rem;">🏮</span> <span data-i18n="menu_anime">Animación y Anime</span></li>
+<li onclick="toggleSidebar(); filterByGenre(28, 'Películas de Acción')"><span style="font-size: 1.1rem;">🔥</span> <span data-i18n="menu_action">Acción</span></li>
+<li onclick="toggleSidebar(); filterByGenre(27, 'Películas de Terror')"><span style="font-size: 1.1rem;">👻</span> <span data-i18n="menu_horror">Terror</span></li>
+<li onclick="toggleSidebar(); showWatchlist()"><span style="font-size: 1.1rem;">⭐</span> <span data-i18n="menu_watchlist">Mi Lista (Guardados)</span></li>
+</ul>
+
+<!-- Muro de Comunidad y Chat en Tiempo Real con WebSockets -->
+<div class="chat-section-container">
+<div class="chat-title">
+<span data-i18n="chat_title">💬 Chat Comunitario</span>
+<span id="chat-status" style="color: #22c55e; font-size: 0.7rem;">● En línea</span>
+</div>
+<div id="chat-messages-box"></div>
+<div class="emoji-reactions-bar">
+<button class="emoji-btn" onclick="sendEmojiReaction('👍')">👍</button>
+<button class="emoji-btn" onclick="sendEmojiReaction('🔥')">🔥</button>
+<button class="emoji-btn" onclick="sendEmojiReaction('❤️')">❤️</button>
+<button class="emoji-btn" onclick="sendEmojiReaction('🍿')">🍿</button>
+</div>
+<div class="chat-input-area">
+<input type="text" id="chat-input-field" class="chat-input" data-i18n-placeholder="chat_placeholder" placeholder="Escribe un mensaje..." maxlength="200" onkeydown="handleChatKey(event)">
+<button class="chat-send-btn" onclick="sendChatMessage()" data-i18n="chat_send">Enviar</button>
+</div>
+</div>
+
+<!-- Panel de Administración -->
+<div id="admin-panel-box">
+<h5 data-i18n="admin_panel_title">Panel de Moderación Admin</h5>
+<div class="admin-control-row">
+<span data-i18n="admin_global_write">Escritura Global de Usuarios:</span>
+<button id="admin-toggle-write-btn" class="admin-toggle-btn active" onclick="toggleAdminWritePermission()">Permitido</button>
+</div>
+</div>
+
+<div class="creator-section-box">
+<h4 data-i18n="creator_panel">Panel del Creador</h4>
+<a href="https://www.youtube.com/@lil_black_clau_keen" target="_blank" class="creator-link-btn">
+<span>▶️</span> YouTube Oficial
+</a>
+<a href="https://www.tiktok.com/@fraces_bando_black" target="_blank" class="creator-link-btn">
+<span>🎵</span> TikTok de Frases
+</a>
+</div>
+</div>
+
+<header>
+<div class="header-left">
+<button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
+<h1 onclick="goHome()">Gaming Global</h1>
+</div>
+<div class="header-right">
+<input type="text" id="search-input" class="search-box" data-i18n-placeholder="search_placeholder" placeholder="Buscar películas o series..." oninput="handleSearch(event)">
+
+<!-- Selector de Idiomas por Banderas -->
+<div class="language-dropdown-container">
+<button class="lang-btn" onclick="toggleLangMenu()">
+<span id="current-lang-flag">🇪🇸</span> <span id="current-lang-code">ES</span>
+</button>
+<div class="lang-menu" id="lang-menu">
+<div class="lang-option active" onclick="changeLanguage('es', '🇪🇸', 'ES')"><span>🇪🇸</span> Español (Latino / ES)</div>
+<div class="lang-option" onclick="changeLanguage('en', '🇺🇸', 'EN')"><span>🇺🇸</span> English (US)</div>
+<div class="lang-option" onclick="changeLanguage('pt', '🇧🇷', 'PT')"><span>🇧🇷</span> Português (BR)</div>
+<div class="lang-option" onclick="changeLanguage('fr', '🇫🇷', 'FR')"><span>🇫🇷</span> Français (FR)</div>
+</div>
+</div>
+
+<div id="auth-container">
+<div id="google-signin-btn"></div>
+<div id="user-profile-widget" onclick="confirmLogout()">
+<img id="user-avatar" src="" alt="Avatar">
+<span id="user-name"></span>
+<span id="admin-badge" class="admin-badge">ADMIN</span>
+</div>
+</div>
+</div>
+</header>
+
+<div class="categories-bar">
+<button class="category-chip active" onclick="goHome(); setActiveChip(this)" data-i18n="cat_all">Todo</button>
+<button class="category-chip" onclick="filterByType('movie'); setActiveChip(this)" data-i18n="cat_movies">Películas</button>
+<button class="category-chip" onclick="filterByType('tv'); setActiveChip(this)" data-i18n="cat_series">Series</button>
+<button class="category-chip" onclick="filterByGenre(16, 'Anime y Animación'); setActiveChip(this)" data-i18n="cat_anime">Anime</button>
+<button class="category-chip" onclick="filterByGenre(28, 'Acción'); setActiveChip(this)" data-i18n="cat_action">Acción</button>
+<button class="category-chip" onclick="filterByGenre(27, 'Terror'); setActiveChip(this)" data-i18n="cat_horror">Terror</button>
+<button class="category-chip" onclick="filterByGenre(35, 'Comedia'); setActiveChip(this)" data-i18n="cat_comedy">Comedia</button>
+<button class="category-chip" onclick="filterByGenre(18, 'Drama'); setActiveChip(this)" data-i18n="cat_drama">Drama</button>
+</div>
+
+<div class="container" id="main-container">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<h2 id="section-title" style="margin: 0; font-size: 1.4rem; font-weight: 700;" data-i18n="main_panel">Panel Principal</h2>
+<button id="back-home-btn" class="back-nav-btn" style="display:none;" onclick="goHome()" data-i18n="back_home">← Volver al Inicio</button>
+</div>
+
+<div id="content-dynamic-area"></div>
+</div>
+
+<div id="actor-profile-view">
+<button class="back-nav-btn" style="margin-bottom: 20px;" onclick="closeActorProfile()" data-i18n="back_nav">← Volver atrás</button>
+<div class="actor-header">
+<img id="actor-img" class="actor-avatar" src="" alt="">
+<div class="actor-details">
+<h2 id="actor-name"></h2>
+<p><strong data-i18n="birth_place">Lugar de nacimiento:</strong> <span id="actor-place">No especificado</span></p>
+<div class="actor-bio" id="actor-bio"></div>
+</div>
+</div>
+<h3 style="margin: 30px 0 15px 0; color: white; font-weight: 700;" data-i18n="filmography">Filmografía</h3>
+<div class="grid-standard" id="actor-media-grid"></div>
+</div>
+
+<div id="modal">
+<div class="modal-content-wrapper">
+<div class="modal-header-top">
+<h2 id="modal-title"></h2>
+<button class="close-btn" onclick="closeModal()" data-i18n="close_btn">✕ Cerrar</button>
+</div>
+
+<!-- Contenedor Padre Inmune con Iframe y Controles Nativos Nativo del Reproductor -->
+<div id="fullscreen-wrapper">
+<div class="player-container">
+<div id="click-shield" onclick="triggerMonetagAndUnlock()"></div>
+
+<!-- Spinner de carga transitorio -->
+<div id="player-spinner">
+<div class="spinner-circle"></div>
+<span style="font-size: 0.8rem; color: #fff;" data-i18n="buffer_loading">Cargando buffer...</span>
+</div>
+
+<!-- Reproductor Iframe Seguro con controles nativos del embed y audio forzado en español -->
+<iframe id="video-player" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="origin-when-cross-origin"></iframe>
+</div>
+</div>
+
+<div class="source-selector-bar">
+<div class="source-current-label"><span data-i18n="active_source">Fuente activa:</span> <span id="current-source-name">Cargando...</span></div>
+<button class="source-open-modal-btn" onclick="openSourcePicker()" data-i18n="change_source">Cambiar Fuente ⚙️</button>
+</div>
+
+<!-- Módulo de Feedback y Reporte de Errores -->
+<div class="feedback-module">
+<div class="star-rating" id="star-rating-box">
+<span class="star" onclick="rateCurrentItem(1)">★</span>
+<span class="star" onclick="rateCurrentItem(2)">★</span>
+<span class="star" onclick="rateCurrentItem(3)">★</span>
+<span class="star" onclick="rateCurrentItem(4)">★</span>
+<span class="star" onclick="rateCurrentItem(5)">★</span>
+</div>
+<button id="report-error-btn" class="report-error-btn" onclick="reportBrokenLink()" data-i18n="report_broken">🚨 Reportar enlace roto</button>
+</div>
+
+<div class="controls-row">
+<button id="watchlist-btn" class="action-btn" onclick="toggleWatchlistCurrent()" data-i18n="save_watchlist">⭐ Guardar en mi lista</button>
+</div>
+
+<div class="controls-row" id="series-selectors" style="display: none;">
+<div class="select-group">
+<label style="align-self:center; font-size:0.85rem;" data-i18n="season_label">Temp:</label>
+<select id="season-select" onchange="changeSeason()"></select>
+</div>
+<div class="select-group">
+<label style="align-self:center; font-size:0.85rem;" data-i18n="episode_label">Ep:</label>
+<select id="episode-select" onchange="changeEpisode()"></select>
+</div>
+</div>
+
+<div class="movie-info">
+<h3 id="info-title"></h3>
+<p id="info-overview"></p>
+</div>
+<div class="cast-section">
+<h4 data-i18n="cast_title">Reparto Principal</h4>
+<div class="cast-grid" id="cast-grid"></div>
+</div>
+</div>
+</div>
+
+<div id="source-picker-modal">
+<div class="source-picker-box">
+<div class="source-picker-header">
+<span data-i18n="video_source_title">Fuente de video</span>
+<button class="close-sidebar" onclick="closeSourcePicker()">✕</button>
+</div>
+<div id="source-options-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto;"></div>
+<button class="source-open-modal-btn" style="width: 100%; margin-top: 5px; padding: 10px;" onclick="closeSourcePicker()">Ok</button>
+</div>
+</div>
+
+<script src="https://omg10.com/4/11446133" async></script>
+
+<script>
+const i18nDictionary = {
+es: {
+sidebar_title: "Gaming Global",
+menu_home: "Inicio",
+menu_movies: "Películas Populares",
+menu_series: "Series de TV",
+menu_anime: "Animación y Anime",
+menu_action: "Acción",
+menu_horror: "Terror",
+menu_watchlist: "Mi Lista (Guardados)",
+chat_title: "💬 Chat Comunitario",
+chat_placeholder: "Escribe un mensaje...",
+chat_send: "Enviar",
+admin_panel_title: "Panel de Moderación Admin",
+admin_global_write: "Escritura Global de Usuarios:",
+creator_panel: "Panel del Creador",
+search_placeholder: "Buscar películas o series...",
+cat_all: "Todo",
+cat_movies: "Películas",
+cat_series: "Series",
+cat_anime: "Anime",
+cat_action: "Acción",
+cat_horror: "Terror",
+cat_comedy: "Comedia",
+cat_drama: "Drama",
+main_panel: "Panel Principal",
+back_home: "← Volver al Inicio",
+back_nav: "← Volver atrás",
+birth_place: "Lugar de nacimiento:",
+filmography: "Filmografía",
+close_btn: "✕ Cerrar",
+buffer_loading: "Cargando buffer...",
+unmute_audio: "Activar sonido",
+active_source: "Fuente activa:",
+change_source: "Cambiar Fuente ⚙️",
+report_broken: "🚨 Reportar enlace roto",
+save_watchlist: "⭐ Guardar en mi lista",
+saved_watchlist: "✅ Guardado en mi lista",
+season_label: "Temp:",
+episode_label: "Ep:",
+cast_title: "Reparto Principal",
+video_source_title: "Fuente de video",
+trending_title: "🔥 Estrenos y Tendencias",
+action_title: "⚡ Acción",
+popular_tv_title: "📺 Series Populares",
+animation_title: "🏮 Animación y Anime"
+},
+en: {
+sidebar_title: "Gaming Global",
+menu_home: "Home",
+menu_movies: "Popular Movies",
+menu_series: "TV Series",
+menu_anime: "Animation & Anime",
+menu_action: "Action",
+menu_horror: "Horror",
+menu_watchlist: "My Watchlist",
+chat_title: "💬 Community Chat",
+chat_placeholder: "Type a message...",
+chat_send: "Send",
+admin_panel_title: "Admin Moderation Panel",
+admin_global_write: "Global User Writing:",
+creator_panel: "Creator Panel",
+search_placeholder: "Search movies or series...",
+cat_all: "All",
+cat_movies: "Movies",
+cat_series: "Series",
+cat_anime: "Anime",
+cat_action: "Action",
+cat_horror: "Horror",
+cat_comedy: "Comedy",
+cat_drama: "Drama",
+main_panel: "Main Panel",
+back_home: "← Back to Home",
+back_nav: "← Go Back",
+birth_place: "Place of birth:",
+filmography: "Filmography",
+close_btn: "✕ Close",
+buffer_loading: "Loading buffer...",
+unmute_audio: "Unmute audio",
+active_source: "Active source:",
+change_source: "Change Source ⚙️",
+report_broken: "🚨 Report Broken Link",
+save_watchlist: "⭐ Save to Watchlist",
+saved_watchlist: "✅ Saved in Watchlist",
+season_label: "Season:",
+episode_label: "Ep:",
+cast_title: "Main Cast",
+video_source_title: "Video Source",
+trending_title: "🔥 Premieres & Trends",
+action_title: "⚡ Action",
+popular_tv_title: "📺 Popular TV Series",
+animation_title: "🏮 Animation & Anime"
+},
+pt: {
+sidebar_title: "Gaming Global",
+menu_home: "Início",
+menu_movies: "Filmes Populares",
+menu_series: "Séries de TV",
+menu_anime: "Animação e Anime",
+menu_action: "Ação",
+menu_horror: "Terror",
+menu_watchlist: "Minha Lista",
+chat_title: "💬 Chat Comunitário",
+chat_placeholder: "Digite uma mensagem...",
+chat_send: "Enviar",
+admin_panel_title: "Painel de Moderação Admin",
+admin_global_write: "Escrita Global de Usuários:",
+creator_panel: "Painel do Criador",
+search_placeholder: "Buscar filmes ou séries...",
+cat_all: "Tudo",
+cat_movies: "Filmes",
+cat_series: "Séries",
+cat_anime: "Anime",
+cat_action: "Ação",
+cat_horror: "Terror",
+cat_comedy: "Comédia",
+cat_drama: "Drama",
+main_panel: "Painel Principal",
+back_home: "← Voltar ao Início",
+back_nav: "← Voltar",
+birth_place: "Local de nascimento:",
+filmography: "Filmografia",
+close_btn: "✕ Fechar",
+buffer_loading: "Carregando buffer...",
+unmute_audio: "Ativar som",
+active_source: "Fonte ativa:",
+change_source: "Mudar Fonte ⚙️",
+report_broken: "🚨 Reportar link quebrado",
+save_watchlist: "⭐ Salvar na minha lista",
+saved_watchlist: "✅ Salvo na lista",
+season_label: "Temp:",
+episode_label: "Ep:",
+cast_title: "Elenco Principal",
+video_source_title: "Fonte de Vídeo",
+trending_title: "🔥 Estreias e Tendências",
+action_title: "⚡ Ação",
+popular_tv_title: "📺 Séries Populares",
+animation_title: "🏮 Animação e Anime"
+},
+fr: {
+sidebar_title: "Gaming Global",
+menu_home: "Accueil",
+menu_movies: "Films Populaires",
+menu_series: "Séries TV",
+menu_anime: "Animation & Anime",
+menu_action: "Action",
+menu_horror: "Horreur",
+menu_watchlist: "Ma Liste",
+chat_title: "💬 Chat Communautaire",
+chat_placeholder: "Écrivez un message...",
+chat_send: "Envoyer",
+admin_panel_title: "Panneau de Modération Admin",
+admin_global_write: "Écriture Globale des Utilisateurs:",
+creator_panel: "Panneau Créateur",
+search_placeholder: "Rechercher des films ou séries...",
+cat_all: "Tout",
+cat_movies: "Films",
+cat_series: "Séries",
+cat_anime: "Anime",
+cat_action: "Action",
+cat_horror: "Horreur",
+cat_comedy: "Comédie",
+cat_drama: "Drame",
+main_panel: "Panneau Principal",
+back_home: "← Retour à l'accueil",
+back_nav: "← Retour",
+birth_place: "Lieu de naissance:",
+filmography: "Filmographie",
+close_btn: "✕ Fermer",
+buffer_loading: "Chargement du tampon...",
+unmute_audio: "Activer le son",
+active_source: "Source active:",
+change_source: "Changer de source ⚙️",
+report_broken: "🚨 Signaler un lien brisé",
+save_watchlist: "⭐ Ajouter à ma liste",
+saved_watchlist: "✅ Enregistré dans ma liste",
+season_label: "Saison:",
+episode_label: "Ép:",
+cast_title: "Casting Principal",
+video_source_title: "Source Vidéo",
+trending_title: "🔥 Sorties & Tendances",
+action_title: "⚡ Action",
+popular_tv_title: "📺 Séries TV Populaires",
+animation_title: "🏮 Animation & Anime"
+}
+};
+
+let currentLang = localStorage.getItem('gaming_global_lang') || 'es';
+
+function changeLanguage(langCode, flagEmoji, langShort) {
+currentLang = langCode;
+localStorage.setItem('gaming_global_lang', langCode);
+document.getElementById('current-lang-flag').innerText = flagEmoji;
+document.getElementById('current-lang-code').innerText = langShort;
+
+document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
+event.currentTarget.classList.add('active');
+toggleLangMenu();
+applyTranslations();
+}
+
+function toggleLangMenu() {
+const menu = document.getElementById('lang-menu');
+menu.classList.toggle('active');
+}
+
+function applyTranslations() {
+const dict = i18nDictionary[currentLang] || i18nDictionary['es'];
+document.querySelectorAll('[data-i18n]').forEach(el => {
+const key = el.getAttribute('data-i18n');
+if (dict[key]) {
+el.innerText = dict[key];
+}
+});
+document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+const key = el.getAttribute('data-i18n-placeholder');
+if (dict[key]) {
+el.placeholder = dict[key];
+}
+});
+}
+
+document.addEventListener('contextmenu', function(event) {
+event.preventDefault();
+return false;
+});
+
+document.addEventListener('keydown', function(event) {
+if (event.key === 'F12') {
+event.preventDefault();
+return false;
+}
+if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'J' || event.key === 'C')) {
+event.preventDefault();
+return false;
+}
+if (event.ctrlKey && event.key === 'u') {
+event.preventDefault();
+return false;
+}
+});
+
+const IMG_BASE = "https://image.tmdb.org/t/p/w500";
+let searchTimeout = null;
+let currentItemData = null;
+let currentSeasonsData = [];
+let activeServersList = [];
+let currentServerIndex = 0;
+let adTriggered = false;
+const MONETAG_DIRECT_URL = "https://omg10.com/4/11446133";
+
+const GOOGLE_CLIENT_ID = "1015792719046-lh3aihi3ha0tbcjt6h1jrj2vjgohhqd5.apps.googleusercontent.com";
+const ADMIN_EMAIL = "Demareclaudio@gmail.com";
+
+let memoryWatchlistCache = null;
+let socket = null;
+let globalChatWriteAllowed = true;
+let lastReportTimestamp = 0;
+let lastChatTimestamp = 0;
+
+window.onload = function () {
+updatePreloaderProgress(30, "Inicializando servicios...");
+applyTranslations();
+
+if (typeof google !== 'undefined' && google.accounts) {
+google.accounts.id.initialize({
+client_id: GOOGLE_CLIENT_ID,
+callback: handleCredentialResponse
+});
+
+google.accounts.id.renderButton(
+document.getElementById("google-signin-btn"),
+{ theme: "outline", size: "medium", text: "signin_with", shape: "pill", locale: currentLang }
+);
+}
+
+checkSavedSession();
+initSocketConnection();
+loadHomeRows();
+};
+
+function updatePreloaderProgress(percent, text) {
+const bar = document.getElementById('preloader-bar');
+const txt = document.getElementById('preloader-text');
+if (bar) bar.style.width = percent + '%';
+if (txt) txt.innerText = text;
+}
+
+function hidePreloader() {
+const preloader = document.getElementById('preloader');
+if (preloader) {
+preloader.classList.add('fade-out');
+setTimeout(() => preloader.style.display = 'none', 600);
+}
+}
+
+function initSocketConnection() {
+const savedUser = localStorage.getItem('gaming_global_user');
+let userToken = "";
+try {
+if (savedUser) {
+const parsed = JSON.parse(savedUser);
+userToken = parsed.sub || parsed.email || "";
+}
+} catch(e) {}
+
+socket = io({
+auth: { token: userToken },
+reconnection: true,
+reconnectionAttempts: 5,
+reconnectionDelay: 2000
+});
+
+socket.on('connect', () => {
+document.getElementById('chat-status').innerText = '● En línea';
+document.getElementById('chat-status').style.color = '#22c55e';
+});
+
+socket.on('disconnect', () => {
+document.getElementById('chat-status').innerText = '● Desconectado';
+document.getElementById('chat-status').style.color = '#e50914';
+});
+
+socket.on('chat_history', (messages) => {
+const box = document.getElementById('chat-messages-box');
+box.innerHTML = '';
+messages.forEach(msg => appendChatMessageUI(msg, false));
+box.scrollTop = box.scrollHeight;
+});
+
+socket.on('new_message', (msg) => {
+appendChatMessageUI(msg, true);
+});
+
+socket.on('admin_alert', (data) => {
+appendSystemAlertUI(data.message);
+if (data.type === 'permission_change') {
+globalChatWriteAllowed = data.writeAllowed;
+const writeBtn = document.getElementById('admin-toggle-write-btn');
+if (writeBtn) {
+writeBtn.innerText = globalChatWriteAllowed ? "Permitido" : "Bloqueado";
+writeBtn.className = `admin-toggle-btn ${globalChatWriteAllowed ? 'active' : ''}`;
+}
+}
+});
+}
+
+async function handleCredentialResponse(response) {
+const responsePayload = parseJwt(response.credential);
+const userData = {
+name: responsePayload.name,
+email: responsePayload.email,
+picture: responsePayload.picture,
+sub: responsePayload.sub
+};
+
+await migrateGuestWatchlistToUser(userData.sub || userData.email);
+
+localStorage.setItem('gaming_global_user', JSON.stringify(userData));
+memoryWatchlistCache = null;
+updateUIAfterLogin(userData);
+
+if (socket) socket.disconnect();
+initSocketConnection();
+}
+
+function parseJwt(token) {
+var base64Url = token.split('.')[1];
+var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+return '%' + ('0' + c.charCodeAt(0).toString(16)).slice(-2);
+}).join(''));
+return JSON.parse(jsonPayload);
+}
+
+function checkSavedSession() {
+const savedUser = localStorage.getItem('gaming_global_user');
+if (savedUser) {
+updateUIAfterLogin(JSON.parse(savedUser));
+}
+}
+
+function updateUIAfterLogin(user) {
+const signinBtn = document.getElementById('google-signin-btn');
+if(signinBtn) signinBtn.style.display = 'none';
+const profileWidget = document.getElementById('user-profile-widget');
+profileWidget.style.display = 'flex';
+document.getElementById('user-avatar').src = user.picture;
+document.getElementById('user-name').innerText = user.name;
+
+const isAdmin = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+if (isAdmin) {
+document.getElementById('admin-badge').style.display = 'inline-block';
+document.getElementById('admin-panel-box').style.display = 'block';
+} else {
+document.getElementById('admin-badge').style.display = 'none';
+document.getElementById('admin-panel-box').style.display = 'none';
+}
+}
+
+function confirmLogout() {
+if (confirm("¿Deseas cerrar sesión en Gaming Global?")) {
+localStorage.removeItem('gaming_global_user');
+memoryWatchlistCache = null;
+document.getElementById('user-profile-widget').style.display = 'none';
+document.getElementById('admin-badge').style.display = 'none';
+document.getElementById('admin-panel-box').style.display = 'none';
+const signinBtn = document.getElementById('google-signin-btn');
+if(signinBtn) signinBtn.style.display = 'block';
+if (typeof google !== 'undefined' && google.accounts) {
+google.accounts.id.disableAutoSelect();
+}
+if (socket) socket.disconnect();
+initSocketConnection();
+}
+}
+
+function triggerMonetagAndUnlock() {
+if (!adTriggered) {
+window.open(MONETAG_DIRECT_URL, '_blank');
+adTriggered = true;
+}
+const shield = document.getElementById('click-shield');
+if(shield) shield.style.pointerEvents = 'none';
+if(shield) shield.style.display = 'none';
+}
+
+function toggleSidebar() {
+const sidebar = document.getElementById('sidebar');
+const backdrop = document.getElementById('sidebar-backdrop');
+sidebar.classList.toggle('active');
+backdrop.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+}
+
+function setActiveChip(element) {
+document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+element.classList.add('active');
+}
+
+async function loadHomeRows() {
+document.getElementById('section-title').style.display = 'none';
+document.getElementById('back-home-btn').style.display = 'none';
+const containerArea = document.getElementById('content-dynamic-area');
+containerArea.innerHTML = '<p style="color: #888;">Cargando categorías...</p>';
+
+try {
+updatePreloaderProgress(60, "Cargando catálogo multimedia...");
+const [resTrending, resAction, resTv, resAnim] = await Promise.all([
+fetch('/api/proxy/trending/all/week?language=es-ES'),
+fetch('/api/proxy/discover/movie?with_genres=28&language=es-ES&sort_by=popularity.desc'),
+fetch('/api/proxy/discover/tv?language=es-ES&sort_by=popularity.desc'),
+fetch('/api/proxy/discover/movie?with_genres=16&language=es-ES&sort_by=popularity.desc')
+]);
+
+const trendingData = await resTrending.json();
+const actionData = await resAction.json();
+const tvData = await resTv.json();
+const animData = await resAnim.json();
+
+containerArea.innerHTML = '';
+
+const dict = i18nDictionary[currentLang] || i18nDictionary['es'];
+createHorizontalRow(containerArea, dict.trending_title, trendingData.results, () => fetchTrending());
+createHorizontalRow(containerArea, dict.action_title, actionData.results, () => filterByGenre(28, 'Acción'));
+createHorizontalRow(containerArea, dict.popular_tv_title, tvData.results.map(i => ({...i, media_type: 'tv'})), () => filterByType('tv'));
+createHorizontalRow(containerArea, dict.animation_title, animData.results, () => filterByGenre(16, 'Animación / Anime'));
+
+updatePreloaderProgress(100, "¡Listo!");
+hidePreloader();
+} catch (error) {
+console.error('Error al cargar la página principal:', error);
+containerArea.innerHTML = '<p style="color: red;">Error al conectar con la API de TMDB.</p>';
+updatePreloaderProgress(100, "Cargado con advertencias");
+hidePreloader();
+}
+}
+
+function createHorizontalRow(parentContainer, titleText, items, onMoreClick) {
+if(!items || items.length === 0) return;
+
+const rowDiv = document.createElement('div');
+rowDiv.className = 'category-row-container';
+
+const headerDiv = document.createElement('div');
+headerDiv.className = 'category-row-header';
+
+const titleEl = document.createElement('span');
+titleEl.className = 'category-row-title';
+titleEl.innerText = titleText;
+
+const moreBtn = document.createElement('button');
+moreBtn.className = 'category-row-more';
+moreBtn.innerText = 'VER MÁS >';
+moreBtn.onclick = onMoreClick;
+
+headerDiv.appendChild(titleEl);
+headerDiv.appendChild(moreBtn);
+rowDiv.appendChild(headerDiv);
+
+const gridScroll = document.createElement('div');
+gridScroll.className = 'horizontal-scroll-grid';
+
+items.forEach(item => {
+if(!item.poster_path || item.media_type === 'person') return;
+const title = item.title || item.name;
+const card = document.createElement('div');
+card.className = 'card';
+card.onclick = () => openModal(item);
+
+const sourceChipText = activeServersList.length > 0 ? activeServersList[currentServerIndex].name.split(' ')[0] : "Premium";
+
+let progressPercent = 0;
+try {
+const savedProg = localStorage.getItem(`progress_${item.id}`);
+if (savedProg) {
+const parsed = JSON.parse(savedProg);
+if (parsed.duration > 0) {
+progressPercent = Math.min(100, (parsed.currentTime / parsed.duration) * 100);
+}
+}
+} catch(e){}
+
+card.innerHTML = `<div class="card-source-chip">${sourceChipText}</div> <img loading="lazy" src="${IMG_BASE + item.poster_path}" alt="${title}"> <div class="card-title">${title}</div> <div class="card-progress-bar"><div class="card-progress-fill" style="width: ${progressPercent}%"></div></div>`;
+gridScroll.appendChild(card);
+});
+
+rowDiv.appendChild(gridScroll);
+parentContainer.appendChild(rowDiv);
+}
+
+async function fetchTrending() {
+document.getElementById('section-title').style.display = 'block';
+document.getElementById('section-title').innerText = "Tendencias Populares";
+document.getElementById('back-home-btn').style.display = 'inline-block';
+try {
+const res = await fetch('/api/proxy/trending/all/week?language=es-ES');
+const data = await res.json();
+displayGridStandard(data.results);
+} catch (error) {
+console.error('Error al cargar tendencias:', error);
+}
+}
+
+async function filterByType(type) {
+const titleName = type === 'movie' ? 'Películas Populares' : 'Series de TV';
+document.getElementById('section-title').style.display = 'block';
+document.getElementById('section-title').innerText = titleName;
+document.getElementById('back-home-btn').style.display = 'inline-block';
+try {
+const res = await fetch(`/api/proxy/discover/${type}?language=es-ES&sort_by=popularity.desc`);
+const data = await res.json();
+displayGridStandard(data.results.map(item => ({...item, media_type: type})));
+} catch (error) {
+console.error('Error al filtrar por tipo:', error);
+}
+}
+
+async function filterByGenre(genreId, genreName) {
+document.getElementById('section-title').style.display = 'block';
+document.getElementById('section-title').innerText = genreName;
+document.getElementById('back-home-btn').style.display = 'inline-block';
+try {
+const res = await fetch(`/api/proxy/discover/movie?with_genres=${genreId}&language=es-ES&sort_by=popularity.desc`);
+const data = await res.json();
+displayGridStandard(data.results.map(item => ({...item, media_type: 'movie'})));
+} catch (error) {
+console.error('Error al filtrar por género:', error);
+}
+}
+
+function displayGridStandard(items) {
+const containerArea = document.getElementById('content-dynamic-area');
+containerArea.innerHTML = '<div class="grid-standard" id="standard-grid-box"></div>';
+const grid = document.getElementById('standard-grid-box');
+
+if(!items || items.length === 0) {
+grid.innerHTML = '<p style="color: #888;">No se encontraron resultados.</p>';
+return;
+}
+items.forEach(item => {
+if(!item.poster_path || item.media_type === 'person') return;
+const title = item.title || item.name;
+const card = document.createElement('div');
+card.className = 'card';
+card.onclick = () => openModal(item);
+const sourceChipText = activeServersList.length > 0 ? activeServersList[currentServerIndex].name.split(' ')[0] : "Premium";
+
+let progressPercent = 0;
+try {
+const savedProg = localStorage.getItem(`progress_${item.id}`);
+if (savedProg) {
+const parsed = JSON.parse(savedProg);
+if (parsed.duration > 0) {
+progressPercent = Math.min(100, (parsed.currentTime / parsed.duration) * 100);
+}
+}
+} catch(e){}
+
+card.innerHTML = `<div class="card-source-chip">${sourceChipText}</div> <img loading="lazy" src="${IMG_BASE + item.poster_path}" alt="${title}"> <div class="card-title">${title}</div> <div class="card-progress-bar"><div class="card-progress-fill" style="width: ${progressPercent}%"></div></div>`;
+grid.appendChild(card);
+});
+}
+
+function handleSearch(event) {
+clearTimeout(searchTimeout);
+const query = event.target.value.trim();
+if(query === '') {
+loadHomeRows();
+return;
+}
+searchTimeout = setTimeout(async () => {
+document.getElementById('section-title').style.display = 'block';
+document.getElementById('section-title').innerText = `Resultados para: "${query}"`;
+document.getElementById('back-home-btn').style.display = 'inline-block';
+try {
+const res = await fetch(`/api/proxy/search/multi?query=${encodeURIComponent(query)}&language=es-ES`);
+const data = await res.json();
+displayGridStandard(data.results);
+} catch (error) {
+console.error('Error en búsqueda:', error);
+}
+}, 400);
+}
+
+function getCurrentUserId() {
+try {
+const user = JSON.parse(localStorage.getItem('gaming_global_user'));
+return user ? (user.sub || user.email) : 'guest_local';
+} catch(e) {
+return 'guest_local';
+}
+}
+
+async function getWatchlist() {
+const userId = getCurrentUserId();
+if (memoryWatchlistCache !== null) {
+return memoryWatchlistCache;
+}
+
+try {
+const localData = localStorage.getItem(`gaming_watchlist_${userId}`);
+memoryWatchlistCache = localData ? JSON.parse(localData) : [];
+} catch(e) {
+console.error("Error al leer favoritos:", e);
+memoryWatchlistCache = [];
+}
+return memoryWatchlistCache;
+}
+
+async function saveWatchlist(watchlist) {
+const userId = getCurrentUserId();
+memoryWatchlistCache = watchlist;
+
+try {
+localStorage.setItem(`gaming_watchlist_${userId}`, JSON.stringify(watchlist));
+} catch(error) {
+console.error("Error al guardar favoritos:", error);
+}
+}
+
+async function migrateGuestWatchlistToUser(newUserId) {
+const guestKey = 'gaming_watchlist_guest_local';
+const userKey = `gaming_watchlist_${newUserId}`;
+try {
+const guestItems = JSON.parse(localStorage.getItem(guestKey)) || [];
+if (guestItems.length > 0) {
+const userItems = JSON.parse(localStorage.getItem(userKey)) || [];
+const mergedMap = new Map();
+[...userItems, ...guestItems].forEach(item => mergedMap.set(item.id, item));
+const finalMerged = Array.from(mergedMap.values());
+
+localStorage.setItem(userKey, JSON.stringify(finalMerged));
+localStorage.removeItem(guestKey);
+memoryWatchlistCache = finalMerged;
+}
+} catch(e) {
+console.error("Error al migrar lista de invitados:", e);
+}
+}
+
+async function showWatchlist() {
+const watchlist = await getWatchlist();
+document.getElementById('section-title').style.display = 'block';
+document.getElementById('section-title').innerText = "Mi Lista (Guardados)";
+document.getElementById('back-home-btn').style.display = 'inline-block';
+displayGridStandard(watchlist);
+}
+
+async function toggleWatchlistCurrent() {
+if(!currentItemData) return;
+let watchlist = await getWatchlist();
+const index = watchlist.findIndex(i => i.id === currentItemData.id);
+const dict = i18nDictionary[currentLang] || i18nDictionary['es'];
+if(index > -1) {
+watchlist.splice(index, 1);
+document.getElementById('watchlist-btn').innerText = dict.save_watchlist;
+} else {
+watchlist.push(currentItemData);
+document.getElementById('watchlist-btn').innerText = dict.saved_watchlist;
+}
+await saveWatchlist(watchlist);
+}
+
+async function openModal(item) {
+currentItemData = item;
+adTriggered = false;
+const shield = document.getElementById('click-shield');
+if(shield) {
+shield.style.display = 'block';
+shield.style.pointerEvents = 'auto';
+}
+
+const modal = document.getElementById('modal');
+const title = item.title || item.name;
+const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
+
+document.getElementById('modal-title').innerText = title;
+document.getElementById('info-title').innerText = title;
+document.getElementById('info-overview').innerText = item.overview || 'Sin descripción disponible.';
+
+const watchlist = await getWatchlist();
+const isSaved = watchlist.some(i => i.id === item.id);
+const dict = i18nDictionary[currentLang] || i18nDictionary['es'];
+document.getElementById('watchlist-btn').innerText = isSaved ? dict.saved_watchlist : dict.save_watchlist;
+
+modal.style.display = 'flex';
+await fetchServersAndLoad(item.id, mediaType);
+loadCast(item.id, mediaType);
+
+if(mediaType === 'tv') {
+document.getElementById('series-selectors').style.display = 'flex';
+loadTvDetails(item.id);
+} else {
+document.getElementById('series-selectors').style.display = 'none';
+}
+}
+
+function closeModal() {
+document.getElementById('modal').style.display = 'none';
+document.getElementById('video-player').src = '';
+closeSourcePicker();
+}
+
+function openSourcePicker() {
+document.getElementById('source-picker-modal').style.display = 'flex';
+renderSourceOptions();
+}
+
+function closeSourcePicker() {
+document.getElementById('source-picker-modal').style.display = 'none';
+}
+
+async function fetchServersAndLoad(id, type, season = 1, episode = 1) {
+showPlayerSpinner(true);
+try {
+const res = await fetch('/api/init');
+const config = await res.json();
+
+activeServersList = config.servers || [
+{ id: "sv_1", name: "VidSrc To (Embed Seguro)" },
+{ id: "sv_2", name: "VidSrc Net" }
+];
+
+currentServerIndex = 0;
+applyServer(0, id, type, season, episode);
+} catch (err) {
+console.error("Error al obtener servidores iniciales:", err);
+activeServersList = [
+{ id: "sv_1", name: "VidSrc To (Embed Seguro)" },
+{ id: "sv_2", name: "VidSrc Net" }
+];
+applyServer(0, id, type, season, episode);
+}
+}
+
+async function applyServer(index, tmdbId, type, season = 1, episode = 1) {
+currentServerIndex = index;
+const srv = activeServersList[index];
+showPlayerSpinner(true);
+
+try {
+const res = await fetch(`/api/stream?serverId=${srv.id}&id=${tmdbId}&type=${type}&season=${season}&episode=${episode}`);
+const data = await res.json();
+
+const videoPlayer = document.getElementById('video-player');
+videoPlayer.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen');
+videoPlayer.setAttribute('referrerpolicy', 'origin-when-cross-origin');
+
+videoPlayer.src = data.url;
+document.getElementById('current-source-name').innerText = srv.name;
+
+setTimeout(() => showPlayerSpinner(false), 1200);
+} catch(err) {
+console.error("Error al resolver stream opaco:", err);
+showPlayerSpinner(false);
+}
+}
+
+function showPlayerSpinner(show) {
+const spinner = document.getElementById('player-spinner');
+if(spinner) spinner.style.display = show ? 'flex' : 'none';
+}
+
+function renderSourceOptions() {
+const listEl = document.getElementById('source-options-list');
+listEl.innerHTML = '';
+
+activeServersList.forEach((srv, index) => {
+const itemDiv = document.createElement('div');
+itemDiv.className = `source-option-item ${index === currentServerIndex ? 'active' : ''}`;
+itemDiv.onclick = () => {
+const mediaType = currentItemData.media_type || (currentItemData.first_air_date ? 'tv' : 'movie');
+const season = document.getElementById('season-select') ? document.getElementById('season-select').value : 1;
+const episode = document.getElementById('episode-select') ? document.getElementById('episode-select').value : 1;
+
+applyServer(index, currentItemData.id, mediaType, season, episode);
+closeSourcePicker();
+};
+itemDiv.innerHTML = `<input type="radio" name="source_radio" ${index === currentServerIndex ? 'checked' : ''}> <span>${srv.name}</span>`;
+listEl.appendChild(itemDiv);
+});
+}
+
+async function loadTvDetails(tvId) {
+try {
+const res = await fetch(`/api/proxy/tv/${tvId}?language=es-ES`);
+const data = await res.json();
+currentSeasonsData = data.seasons ? data.seasons.filter(s => s.season_number > 0) : [];
+
+const seasonSelect = document.getElementById('season-select');
+seasonSelect.innerHTML = '';
+currentSeasonsData.forEach(season => {
+const opt = document.createElement('option');
+opt.value = season.season_number;
+opt.innerText = `Temp ${season.season_number} (${season.episode_count} Eps)`;
+seasonSelect.appendChild(opt);
+});
+
+if(currentSeasonsData.length > 0) {
+loadEpisodes(tvId, currentSeasonsData[0].season_number);
+}
+} catch (error) {
+console.error('Error al cargar temporadas:', error);
+}
+}
+
+async function loadEpisodes(tvId, seasonNumber) {
+try {
+const res = await fetch(`/api/proxy/tv/${tvId}/season/${seasonNumber}?language=es-ES`);
+const data = await res.json();
+
+const episodeSelect = document.getElementById('episode-select');
+episodeSelect.innerHTML = '';
+if(data.episodes) {
+data.episodes.forEach(ep => {
+const opt = document.createElement('option');
+opt.value = ep.episode_number;
+opt.innerText = `Ep ${ep.episode_number}:${ep.name}`;
+episodeSelect.appendChild(opt);
+});
+}
+} catch (error) {
+console.error('Error al cargar episodios:', error);
+}
+}
+
+function changeSeason() {
+const seasonNum = document.getElementById('season-select').value;
+loadEpisodes(currentItemData.id, seasonNum);
+applyServer(currentServerIndex, currentItemData.id, 'tv', seasonNum, 1);
+window.open(MONETAG_DIRECT_URL, '_blank');
+}
+
+function changeEpisode() {
+const seasonNum = document.getElementById('season-select').value;
+const episodeNum = document.getElementById('episode-select').value;
+applyServer(currentServerIndex, currentItemData.id, 'tv', seasonNum, episodeNum);
+window.open(MONETAG_DIRECT_URL, '_blank');
+}
+
+async function loadCast(id, type) {
+const castGrid = document.getElementById('cast-grid');
+castGrid.innerHTML = '';
+
+try {
+const res = await fetch(`/api/proxy/${type}/${id}/credits?language=es-ES`);
+const data = await res.json();
+
+if(!data.cast || data.cast.length === 0) {
+castGrid.innerHTML = '<p style="font-size: 0.85rem; color: #888;">No hay información de reparto.</p>';
+return;
+}
+
+data.cast.slice(0, 15).forEach(person => {
+if(!person.profile_path) return;
+const castCard = document.createElement('div');
+castCard.className = 'cast-card';
+castCard.onclick = () => openActorProfile(person.id);
+castCard.innerHTML = `<img loading="lazy" src="${IMG_BASE + person.profile_path}" alt="${person.name}"> <div class="cast-name">${person.name}</div>`;
+castGrid.appendChild(castCard);
+});
+} catch (error) {
+console.error('Error al cargar reparto:', error);
+}
+}
+
+async function openActorProfile(personId) {
+closeModal();
+document.getElementById('main-container').style.display = 'none';
+document.getElementById('actor-profile-view').style.display = 'block';
+window.scrollTo({ top: 0, behavior: 'smooth' });
+
+try {
+const resPerson = await fetch(`/api/proxy/person/${personId}?language=es-ES`);
+const person = await resPerson.json();
+
+document.getElementById('actor-img').src = person.profile_path ? IMG_BASE + person.profile_path : '';
+document.getElementById('actor-name').innerText = person.name;
+document.getElementById('actor-place').innerText = person.place_of_birth || 'No especificado';
+document.getElementById('actor-bio').innerText = person.biography || 'Sin biografía disponible.';
+
+const resCredits = await fetch(`/api/proxy/person/${personId}/combined_credits?language=es-ES`);
+const credits = await resCredits.json();
+
+const mediaGrid = document.getElementById('actor-media-grid');
+mediaGrid.innerHTML = '';
+
+if(credits.cast) {
+const validCredits = credits.cast.filter(item => item.poster_path);
+validCredits.forEach(item => {
+const title = item.title || item.name;
+const card = document.createElement('div');
+card.className = 'card';
+card.onclick = () => openModal(item);
+card.innerHTML = `<img loading="lazy" src="${IMG_BASE + item.poster_path}" alt="${title}"> <div class="card-title">${title}</div>`;
+mediaGrid.appendChild(card);
+});
+}
+} catch (error) {
+console.error('Error al cargar perfil de actor:', error);
+}
+}
+
+function closeActorProfile() {
+document.getElementById('actor-profile-view').style.display = 'none';
+document.getElementById('main-container').style.display = 'block';
+}
+
+function goHome() {
+closeActorProfile();
+closeModal();
+document.getElementById('search-input').value = '';
+loadHomeRows();
+}
+
+function rateCurrentItem(stars) {
+const savedUser = JSON.parse(localStorage.getItem('gaming_global_user'));
+if (!savedUser) {
+alert("Debes iniciar sesión con Google para calificar.");
+return;
+}
+const starEls = document.querySelectorAll('.star');
+starEls.forEach((el, idx) => {
+if (idx < stars) el.classList.add('active');
+else el.classList.remove('active');
+});
+if (socket && currentItemData) {
+socket.emit('rate_item', { itemId: currentItemData.id, rating: stars, user: savedUser.name });
+}
+alert(`¡Gracias por calificar con ${stars} estrellas!`);
+}
+
+function reportBrokenLink() {
+const now = Date.now();
+if (now - lastReportTimestamp < 10000) {
+alert("Debes esperar 10 segundos antes de enviar otro reporte.");
+return;
+}
+lastReportTimestamp = now;
+
+const btn = document.getElementById('report-error-btn');
+btn.disabled = true;
+btn.innerText = "🚨 Reportado";
+
+if (socket && currentItemData) {
+const title = currentItemData.title || currentItemData.name;
+const serverName = activeServersList[currentServerIndex].name;
+socket.emit('report_broken', { title, server: serverName });
+}
+
+setTimeout(() => {
+btn.disabled = false;
+btn.innerText = "🚨 Reportar enlace roto";
+}, 10000);
+
+alert("Reporte enviado correctamente al administrador. Gracias por colaborar.");
+}
+
+function handleChatKey(event) {
+if (event.key === 'Enter') {
+sendChatMessage();
+}
+}
+
+function sendChatMessage() {
+if (!globalChatWriteAllowed) {
+alert("El administrador ha deshabilitado temporalmente la escritura en el chat.");
+return;
+}
+
+const now = Date.now();
+if (now - lastChatTimestamp < 3000) {
+alert("Cooldown activo: espera 3 segundos para enviar otro mensaje.");
+return;
+}
+
+const input = document.getElementById('chat-input-field');
+const text = input.value.trim();
+if (!text) return;
+
+const savedUser = JSON.parse(localStorage.getItem('gaming_global_user'));
+const userName = savedUser ? savedUser.name : "Invitado";
+
+if (socket) {
+socket.emit('send_message', { user: userName, text: text });
+lastChatTimestamp = now;
+input.value = '';
+}
+}
+
+function sendEmojiReaction(emoji) {
+if (!globalChatWriteAllowed) return;
+const savedUser = JSON.parse(localStorage.getItem('gaming_global_user'));
+const userName = savedUser ? savedUser.name : "Invitado";
+if (socket) {
+socket.emit('send_message', { user: userName, text: emoji });
+}
+}
+
+function appendChatMessageUI(msg, scrollDown = true) {
+const box = document.getElementById('chat-messages-box');
+const div = document.createElement('div');
+div.className = 'chat-msg';
+div.innerHTML = `<span class="chat-msg-user">${escapeHtml(msg.user)}:</span>${escapeHtml(msg.text)}`;
+box.appendChild(div);
+if (scrollDown) {
+box.scrollTop = box.scrollHeight;
+}
+}
+
+function appendSystemAlertUI(text) {
+const box = document.getElementById('chat-messages-box');
+const div = document.createElement('div');
+div.className = 'chat-msg';
+div.style.color = '#ffcc00';
+div.innerHTML = `<strong>[Sistema]:</strong> ${escapeHtml(text)}`;
+box.appendChild(div);
+box.scrollTop = box.scrollHeight;
+}
+
+function escapeHtml(str) {
+return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function toggleAdminWritePermission() {
+globalChatWriteAllowed = !globalChatWriteAllowed;
+const btn = document.getElementById('admin-toggle-write-btn');
+btn.innerText = globalChatWriteAllowed ? "Permitido" : "Bloqueado";
+btn.className = `admin-toggle-btn ${globalChatWriteAllowed ? 'active' : ''}`;
+
+if (socket) {
+socket.emit('admin_toggle_write', { writeAllowed: globalChatWriteAllowed });
+}
+}
+</script>
+</body>
+</html>
+
+ 
