@@ -1,37 +1,52 @@
 {
-  "tmdb_api_key": "3afb09305f5df52b80137e5ce2455858",
+  "tmb_api_key": "3afb09305f5df52b80137e5c2455858",
   "omdb_api_key": "861e019d",
   "monetag_url": "https://omg10.com/4/11446133",
   "servers": [
     {
       "id": "sv_1",
-      "name": "VidSrc ME (Oficial)",
-      "domain": "vidsrcme.ru"
+      "name": "Servidor Latino (LatAm)",
+      "domain": "vidsrc.icu"
     },
     {
       "id": "sv_2",
-      "name": "VidSrc 2",
-      "domain": "vidsrc2.ru"
+      "name": "PelisLatino HD",
+      "domain": "embed.rgshows.me"
     },
     {
       "id": "sv_3",
-      "name": "VidSrc IR",
-      "domain": "vidsrc.ir"
+      "name": "Castellano / Latino",
+      "domain": "vidsrc.su"
     },
     {
       "id": "sv_4",
-      "name": "VidSrc SU",
-      "domain": "vidsrcme.su"
+      "name": "Stream Español",
+      "domain": "PLAYER.CUEVANA.BIZ"
     },
     {
       "id": "sv_5",
-      "name": "2Embed CC",
+      "name": "Multi-Audio Server",
       "domain": "2embed.cc"
     },
     {
       "id": "sv_6",
-      "name": "2Embed Skin",
-      "domain": "2embed.skin"
+      "name": "VidSrc To (Español Latino/ES)",
+      "domain": "vidsrc.to"
+    },
+    {
+      "id": "sv_7",
+      "name": "VidSrc Net (Español)",
+      "domain": "vidsrc.net"
+    },
+    {
+      "id": "sv_8",
+      "name": "VidSrc Pro",
+      "domain": "vidsrc.pro"
+    },
+    {
+      "id": "sv_9",
+      "name": "Embed Su",
+      "domain": "vidsrcme.su"
     }
   ]
 }
