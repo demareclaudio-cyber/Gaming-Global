@@ -1,4 +1,5 @@
-node_modules/
+
 datos_chat.json
 .env
 verified_languages.json
+node_modules

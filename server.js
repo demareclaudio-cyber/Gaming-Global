@@ -1,6 +1,4 @@
-/**
-* Gaming Global - Servidor Unificado con Caché RAM (TTL 12h) y Sincronización Dual TMDb / OMDb
-*/
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');

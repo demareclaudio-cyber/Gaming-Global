@@ -1,0 +1,19 @@
+{
+  "messages": [
+    {
+      "user": "Invitado",
+      "text": "👍",
+      "timestamp": 1789001816288
+    },
+    {
+      "user": "Claudio Demare",
+      "text": "hola",
+      "timestamp": 1789007676151
+    }
+  ],
+  "ratings": {},
+  "reports": [],
+  "permissions": {
+    "globalWriteAllowed": false
+  }
+}
